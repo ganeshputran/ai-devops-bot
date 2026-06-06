@@ -15,19 +15,19 @@ from datetime import datetime, timezone, timedelta
 PORTFOLIO_PAGES = [
     {
         "name": "Portfolio (main)",
-        "url":  "https://noobstar2306.github.io"
+        "url":  "https://ganeshputran.github.io"
     },
     {
         "name": "Pipeline dashboard",
-        "url":  "https://noobstar2306.github.io/ai-devops-bot/"
+        "url":  "https://ganeshputran.github.io/ai-devops-bot/"
     },
     {
         "name": "Hobbies page",
-        "url":  "https://noobstar2306.github.io/ai-devops-bot/hobbies.html"
+        "url":  "https://ganeshputran.github.io/ai-devops-bot/hobbies.html"
     },
     {
         "name": "Widgets JS",
-        "url":  "https://noobstar2306.github.io/ai-devops-bot/widgets.js"
+        "url":  "https://ganeshputran.github.io/ai-devops-bot/widgets.js"
     },
 ]
 

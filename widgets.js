@@ -1,7 +1,7 @@
 /**
- * widgets.js — Functionality layer for noobstar2306's portfolio
- * Hosted in: ai-devops-bot repo (noobstar2306.github.io/ai-devops-bot/widgets.js)
- * Loaded by: noobstar2306.github.io (portfolio) via a single <script> tag
+ * widgets.js — Functionality layer for ganeshputran's portfolio
+ * Hosted in: ai-devops-bot repo (ganeshputran.github.io/ai-devops-bot/widgets.js)
+ * Loaded by: ganeshputran.github.io (portfolio) via a single <script> tag
  *
  * All API calls go through the Cloudflare Worker proxy at WORKER_URL.
  * API keys (Gemini, GitHub PAT) live in Cloudflare environment variables
@@ -26,26 +26,26 @@
     workerUrl:     'https://gemini-proxy.ganeshputran.workers.dev',
 
     // GitHub repos
-    backendRepo:   'noobstar2306/ai-devops-bot',
-    frontendRepo:  'noobstar2306/noobstar2306.github.io',
+    backendRepo:   'ganeshputran/ai-devops-bot',
+    frontendRepo:  'ganeshputran/ganeshputran.github.io',
 
     // CI workflow filename — used for live pipeline preview
     ciWorkflow:    'ci.yml',
 
     // Live site URLs
     urls: {
-      portfolio:  'https://noobstar2306.github.io',
-      dashboard:  'https://noobstar2306.github.io/ai-devops-bot/',
-      hobbies:    'https://noobstar2306.github.io/ai-devops-bot/hobbies.html',
-      widgets:    'https://noobstar2306.github.io/ai-devops-bot/widgets.js',
+      portfolio:  'https://ganeshputran.github.io',
+      dashboard:  'https://ganeshputran.github.io/ai-devops-bot/',
+      hobbies:    'https://ganeshputran.github.io/ai-devops-bot/hobbies.html',
+      widgets:    'https://ganeshputran.github.io/ai-devops-bot/widgets.js',
     },
 
     // Issue routing — which repo each issue type goes to
     issueRouting: {
-      bug:         { repo: 'noobstar2306/ai-devops-bot',          color: '#4fa3ff' },
-      question:    { repo: 'noobstar2306/ai-devops-bot',          color: '#4fa3ff' },
-      suggestion:  { repo: 'noobstar2306/noobstar2306.github.io', color: '#a78bfa' },
-      improvement: { repo: 'noobstar2306/noobstar2306.github.io', color: '#a78bfa' },
+      bug:         { repo: 'ganeshputran/ai-devops-bot',          color: '#4fa3ff' },
+      question:    { repo: 'ganeshputran/ai-devops-bot',          color: '#4fa3ff' },
+      suggestion:  { repo: 'ganeshputran/ganeshputran.github.io', color: '#a78bfa' },
+      improvement: { repo: 'ganeshputran/ganeshputran.github.io', color: '#a78bfa' },
     },
   };
 
@@ -298,7 +298,7 @@
               color:#4fa3ff; display:flex; align-items:center; gap:0.5rem;
             ">
               <span>→</span>
-              <span id="gp-routing-text">Will be created in: noobstar2306/ai-devops-bot</span>
+              <span id="gp-routing-text">Will be created in: ganeshputran/ai-devops-bot</span>
             </div>
             <label class="gp-help-label" for="gp-issue-title">Title</label>
             <input id="gp-issue-title" class="gp-input" type="text" placeholder="Short description of the issue..." maxlength="100"/>
@@ -316,7 +316,7 @@
     </div>
 
     <!-- 🎯 Hobbies button — links to hobbies page -->
-    <a id="gp-hobbies-btn" class="gp-fab" href="https://noobstar2306.github.io/ai-devops-bot/hobbies.html"
+    <a id="gp-hobbies-btn" class="gp-fab" href="https://ganeshputran.github.io/ai-devops-bot/hobbies.html"
        target="_blank" rel="noopener" aria-label="View hobbies and interests" title="Hobbies &amp; Interests">🎯</a>
 
     <!-- 💡 Tips button -->

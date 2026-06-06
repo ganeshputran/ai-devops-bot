@@ -3,9 +3,9 @@
 A fully automated DevOps system built from scratch — CI/CD pipeline with AI-powered failure analysis, automated code review, live pipeline dashboard, hobbies page with AI recommendations, Cloudflare Worker API proxy, reverse proxy setup, and access log monitoring.
 
 **Live sites:**
-- 🌐 [Pipeline Dashboard](https://noobstar2306.github.io/ai-devops-bot/)
-- 🎯 [Hobbies & Interests](https://noobstar2306.github.io/ai-devops-bot/hobbies.html)
-- 💼 [Portfolio](https://noobstar2306.github.io)
+- 🌐 [Pipeline Dashboard](https://ganeshputran.github.io/ai-devops-bot/)
+- 🎯 [Hobbies & Interests](https://ganeshputran.github.io/ai-devops-bot/hobbies.html)
+- 💼 [Portfolio](https://ganeshputran.github.io)
 
 ---
 
@@ -92,8 +92,8 @@ Real-time pipeline health via GitHub Actions API. Tips powered by Cloudflare Wor
 
 ### Help & issue routing
 Issues routed by type via Cloudflare Worker:
-- 🐛 Bug / ❓ Question → `noobstar2306/ai-devops-bot`
-- 💡 Suggestion / ✨ Improvement → `noobstar2306/noobstar2306.github.io`
+- 🐛 Bug / ❓ Question → `ganeshputran/ai-devops-bot`
+- 💡 Suggestion / ✨ Improvement → `ganeshputran/ganeshputran.github.io`
 
 ### Cloudflare Worker proxy
 All API keys live in Cloudflare environment variables — never in source code or deployed files. See `gemini-proxy/src/index.js`.
@@ -179,6 +179,6 @@ python3 app.py
 ## Author
 
 **Ganesh Putran**
-- GitHub: [noobstar2306](https://github.com/noobstar2306)
+- GitHub: [ganeshputran](https://github.com/ganeshputran)
 - LinkedIn: [ganesh-putran](https://www.linkedin.com/in/ganesh-putran-b047ba235/)
-- Portfolio: [noobstar2306.github.io](https://noobstar2306.github.io)
+- Portfolio: [ganeshputran.github.io](https://ganeshputran.github.io)
