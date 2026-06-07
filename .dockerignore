@@ -1,0 +1,44 @@
+# .dockerignore — files excluded from the Docker build context
+# Keeps the image small and prevents secrets from leaking into the image.
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Test files — not needed in the container
+test_app.py
+*.txt
+
+# CI/CD files — not needed in the container
+.github/
+
+# Frontend files — not needed in the container
+dashboard/
+hobbies.html
+maintenance.html
+widgets.js
+*.html
+
+# Documentation
+*.md
+CHANGELOG.md
+README.md
+
+# Logs
+*.log
+health_log.txt
+
+# Local dev
+.env
+.env.*
+*.local
+
+# Git
+.git/
+.gitignore
