@@ -1,0 +1,25 @@
+# Dockerfile.metrics — Metrics exporter for Prometheus
+# Runs app.py on a schedule and exposes results as Prometheus metrics
+# on port 8000 so Prometheus can scrape them.
+
+FROM python:3.11-slim
+
+LABEL org.opencontainers.image.title="Portfolio Metrics Exporter"
+LABEL org.opencontainers.image.description="Exposes portfolio health check results as Prometheus metrics"
+
+WORKDIR /app
+
+# Install prometheus-client — the only dependency
+RUN pip install --no-cache-dir prometheus-client==0.20.0
+
+# Copy app files
+COPY app.py .
+COPY metrics_exporter.py .
+
+# Non-root user for security
+RUN useradd --create-home appuser
+USER appuser
+
+EXPOSE 8000
+
+CMD ["python", "metrics_exporter.py"]

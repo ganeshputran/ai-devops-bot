@@ -1,0 +1,67 @@
+# docker-compose.yml — Prometheus + Grafana monitoring stack
+# Runs locally in WSL alongside your existing Caddy proxy.
+#
+# Start:  docker compose up -d
+# Stop:   docker compose down
+# Logs:   docker compose logs -f
+#
+# Access:
+#   Prometheus: http://localhost:9090
+#   Grafana:    http://localhost:3000  (admin/admin on first login)
+
+version: "3.8"
+
+services:
+
+  # ── PROMETHEUS ──
+  # Scrapes metrics from app.py every 15 seconds
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'   # keep 7 days of data
+      - '--web.enable-lifecycle'
+
+  # ── GRAFANA ──
+  # Visualises Prometheus metrics as live dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/portfolio.json
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+
+  # ── METRICS EXPORTER ──
+  # Runs app.py on a schedule and exposes results as Prometheus metrics
+  metrics-exporter:
+    build:
+      context: ../
+      dockerfile: Dockerfile.metrics
+    container_name: metrics-exporter
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - SCRAPE_INTERVAL=60   # check pages every 60 seconds
+
+volumes:
+  prometheus_data:
+  grafana_data:

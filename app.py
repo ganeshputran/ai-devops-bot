@@ -51,20 +51,21 @@ def check_page(name: str, url: str, timeout: int = 10) -> dict:
             url,
             headers={"User-Agent": "PortfolioHealthChecker/1.0"}
         )
+        start = datetime.now(timezone.utc).timestamp()
         with urllib.request.urlopen(req, timeout=timeout) as response:
+            duration = datetime.now(timezone.utc).timestamp() - start
             return {
-                "name":   name,
-                "url":    url,
-                "status": response.status,
-                "ok":     response.status == 200,
-                "error":  None
+                "name":     name,
+                "url":      url,
+                "status":   response.status,
+                "ok":       response.status == 200,
+                "duration": round(duration, 3),
+                "error":    None
             }
     except urllib.error.HTTPError as e:
-        # Server responded with an error status (4xx, 5xx)
-        return {"name": name, "url": url, "status": e.code, "ok": False, "error": str(e)}
+        return {"name": name, "url": url, "status": e.code, "ok": False, "duration": None, "error": str(e)}
     except urllib.error.URLError as e:
-        # Network-level failure (DNS, timeout, connection refused)
-        return {"name": name, "url": url, "status": None, "ok": False, "error": str(e.reason)}
+        return {"name": name, "url": url, "status": None, "ok": False, "duration": None, "error": str(e.reason)}
 
 
 def check_all_pages(pages: list = None) -> list:

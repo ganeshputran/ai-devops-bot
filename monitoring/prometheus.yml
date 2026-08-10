@@ -1,0 +1,20 @@
+# prometheus.yml — Prometheus scrape configuration
+# Defines what endpoints Prometheus polls for metrics and how often.
+
+global:
+  scrape_interval:     15s   # scrape every 15 seconds
+  evaluation_interval: 15s   # evaluate alerting rules every 15 seconds
+
+scrape_configs:
+
+  # ── Portfolio health metrics ──
+  # Scrapes the metrics-exporter container which runs app.py
+  - job_name: 'portfolio-health'
+    static_configs:
+      - targets: ['metrics-exporter:8000']
+    scrape_interval: 60s   # health checks run every 60s
+
+  # ── Prometheus itself ──
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

@@ -1,0 +1,8 @@
+# Grafana dashboard provisioning — loads dashboards from /var/lib/grafana/dashboards
+apiVersion: 1
+
+providers:
+  - name: Default
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards
