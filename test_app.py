@@ -122,9 +122,9 @@ def test_get_summary_all_passing():
 def test_get_summary_some_failing():
     """Any failing result should produce healthy=False."""
     results = [
-        {"ok": True},
-        {"ok": False},
-        {"ok": True},
+        {"ok": True,  "name": "Page A"},
+        {"ok": False, "name": "Page B"},
+        {"ok": True,  "name": "Page C"},
     ]
     summary = get_summary(results)
     assert summary["failed"]  == 1
@@ -140,7 +140,7 @@ def test_get_summary_empty_results():
 
 def test_get_summary_all_failing():
     """All failing results should return healthy=False."""
-    results = [{"ok": False}, {"ok": False}]
+    results = [{"ok": False, "name": "Page A"}, {"ok": False, "name": "Page B"}]
     summary = get_summary(results)
     assert summary["passed"]  == 0
     assert summary["healthy"] is False
@@ -148,39 +148,47 @@ def test_get_summary_all_failing():
 
 # ── format_report ─────────────────────────────────────────────────────────────
 
+def make_result(name, url, status, ok, error=None):
+    """Helper to create a full result dict matching app.py's new format."""
+    return {
+        "name":          name,
+        "url":           url,
+        "status":        status,
+        "ok":            ok,
+        "duration":      0.1 if ok else None,
+        "error":         error,
+        "content_ok":    ok,
+        "content_check": None,
+    }
+
+
 def test_format_report_contains_page_names():
     """The report should include every page name from the results."""
     results = [
-        {"name": "Portfolio",  "url": "https://a.com", "status": 200, "ok": True,  "error": None},
-        {"name": "Dashboard",  "url": "https://b.com", "status": 404, "ok": False, "error": "Not Found"},
+        make_result("Portfolio", "https://a.com", 200, True),
+        make_result("Dashboard", "https://b.com", 404, False, "Not Found"),
     ]
     report = format_report(results)
-    assert "Portfolio"  in report
-    assert "Dashboard"  in report
+    assert "Portfolio" in report
+    assert "Dashboard" in report
 
 
 def test_format_report_shows_healthy_when_all_pass():
     """Report should say HEALTHY when all pages pass."""
-    results = [
-        {"name": "Page", "url": "https://a.com", "status": 200, "ok": True, "error": None}
-    ]
+    results = [make_result("Page", "https://a.com", 200, True)]
     report = format_report(results)
     assert "HEALTHY" in report
 
 
 def test_format_report_shows_unhealthy_on_failure():
     """Report should say UNHEALTHY when any page fails."""
-    results = [
-        {"name": "Page", "url": "https://a.com", "status": 500, "ok": False, "error": "Server Error"}
-    ]
+    results = [make_result("Page", "https://a.com", 500, False, "Server Error")]
     report = format_report(results)
     assert "UNHEALTHY" in report
 
 
 def test_format_report_shows_error_detail():
     """Report should include error details for failed pages."""
-    results = [
-        {"name": "Page", "url": "https://a.com", "status": None, "ok": False, "error": "Connection refused"}
-    ]
+    results = [make_result("Page", "https://a.com", None, False, "Connection refused")]
     report = format_report(results)
     assert "Connection refused" in report

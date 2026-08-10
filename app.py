@@ -1,47 +1,55 @@
 # app.py — Portfolio site health checker
-# This is the core application tested by the CI pipeline.
-# It validates that all key portfolio pages and links are reachable,
-# checks HTTP status codes, and reports the health of the live site.
-# Useful for the portfolio because it demonstrates real DevOps monitoring.
+# Validates all key portfolio pages with content verification,
+# not just HTTP status codes. Checks for expected content in
+# each page to ensure the application is truly healthy.
 
 import urllib.request
 import urllib.error
-from datetime import datetime, timezone, timedelta
-
+from datetime import datetime, timezone
 
 # ── PORTFOLIO PAGES ──
-# All public URLs that should return HTTP 200.
-# Add new pages here as the portfolio grows.
+# Each page has optional content_check — a string that must appear
+# in the response body to confirm the page is serving real content.
 PORTFOLIO_PAGES = [
     {
-        "name": "Portfolio (main)",
-        "url":  "https://ganeshputran.github.io"
+        "name":          "Portfolio (main)",
+        "url":           "https://ganeshputran.github.io",
+        "content_check": "Ganesh Putran",   # verify real content is served
     },
     {
-        "name": "Pipeline dashboard",
-        "url":  "https://ganeshputran.github.io/ai-devops-bot/"
+        "name":          "Pipeline dashboard",
+        "url":           "https://ganeshputran.github.io/ai-devops-bot/",
+        "content_check": "AI DevOps Bot",
     },
     {
-        "name": "Hobbies page",
-        "url":  "https://ganeshputran.github.io/ai-devops-bot/hobbies.html"
+        "name":          "Hobbies page",
+        "url":           "https://ganeshputran.github.io/ai-devops-bot/hobbies.html",
+        "content_check": "Hobbies",
     },
     {
-        "name": "Widgets JS",
-        "url":  "https://ganeshputran.github.io/ai-devops-bot/widgets.js"
+        "name":          "Widgets JS",
+        "url":           "https://ganeshputran.github.io/ai-devops-bot/widgets.js",
+        "content_check": "WORKER_URL",      # verify JS is correctly deployed
+    },
+    {
+        "name":          "Cloudflare Worker",
+        "url":           "https://gemini-proxy.ganeshputran.workers.dev/readme?repo=ganeshputran/ai-devops-bot",
+        "content_check": None,              # just check it responds
     },
 ]
 
 
-def check_page(name: str, url: str, timeout: int = 10) -> dict:
+def check_page(name: str, url: str, content_check: str = None, timeout: int = 10) -> dict:
     """
-    Check if a single URL is reachable and returns HTTP 200.
+    Check a URL for HTTP 200 and optionally verify expected content.
 
-    Returns a result dict with:
-      - name:    human-readable page name
-      - url:     the URL that was checked
-      - status:  HTTP status code returned, or None on error
-      - ok:      True if status is 200, False otherwise
-      - error:   error message if the request failed, else None
+    Args:
+        name:          human-readable page name
+        url:           URL to check
+        content_check: string that must appear in response body (optional)
+        timeout:       request timeout in seconds
+
+    Returns dict with name, url, status, ok, duration, error, content_ok fields.
     """
     if not url or not url.startswith("http"):
         raise ValueError(f"Invalid URL: '{url}'")
@@ -51,65 +59,85 @@ def check_page(name: str, url: str, timeout: int = 10) -> dict:
             url,
             headers={"User-Agent": "PortfolioHealthChecker/1.0"}
         )
+        start = datetime.now(timezone.utc).timestamp()
         with urllib.request.urlopen(req, timeout=timeout) as response:
+            duration = round(datetime.now(timezone.utc).timestamp() - start, 3)
+            body     = response.read().decode('utf-8', errors='ignore')
+
+            # ── Content verification ──
+            content_ok = True
+            content_error = None
+            if content_check and content_check not in body:
+                content_ok    = False
+                content_error = f"Expected '{content_check}' not found in response"
+
             return {
-                "name":   name,
-                "url":    url,
-                "status": response.status,
-                "ok":     response.status == 200,
-                "error":  None
+                "name":          name,
+                "url":           url,
+                "status":        response.status,
+                "ok":            response.status == 200 and content_ok,
+                "duration":      duration,
+                "error":         content_error,
+                "content_ok":    content_ok,
+                "content_check": content_check,
             }
+
     except urllib.error.HTTPError as e:
-        # Server responded with an error status (4xx, 5xx)
-        return {"name": name, "url": url, "status": e.code, "ok": False, "error": str(e)}
+        return {
+            "name": name, "url": url, "status": e.code,
+            "ok": False, "duration": None,
+            "error": f"HTTP {e.code}: {e.reason}",
+            "content_ok": False, "content_check": content_check,
+        }
     except urllib.error.URLError as e:
-        # Network-level failure (DNS, timeout, connection refused)
-        return {"name": name, "url": url, "status": None, "ok": False, "error": str(e.reason)}
+        return {
+            "name": name, "url": url, "status": None,
+            "ok": False, "duration": None,
+            "error": f"Connection failed: {e.reason}",
+            "content_ok": False, "content_check": content_check,
+        }
+    except Exception as e:
+        return {
+            "name": name, "url": url, "status": None,
+            "ok": False, "duration": None,
+            "error": f"Unexpected error: {str(e)}",
+            "content_ok": False, "content_check": content_check,
+        }
 
 
 def check_all_pages(pages: list = None) -> list:
-    """
-    Check all portfolio pages and return a list of result dicts.
-    Uses PORTFOLIO_PAGES by default; pass a custom list for testing.
-    """
+    """Check all portfolio pages. Uses PORTFOLIO_PAGES by default."""
     if pages is None:
         pages = PORTFOLIO_PAGES
-
     results = []
     for page in pages:
-        result = check_page(page["name"], page["url"])
+        result = check_page(
+            page["name"],
+            page["url"],
+            page.get("content_check")
+        )
         results.append(result)
     return results
 
 
 def get_summary(results: list) -> dict:
-    """
-    Summarise a list of check_page results.
-
-    Returns a dict with:
-      - total:   total number of pages checked
-      - passed:  number that returned HTTP 200
-      - failed:  number that did not
-      - healthy: True if all pages passed
-    """
+    """Summarise check results."""
     if not results:
-        return {"total": 0, "passed": 0, "failed": 0, "healthy": True}
-
-    passed = sum(1 for r in results if r["ok"])
-    failed = len(results) - passed
+        return {"total": 0, "passed": 0, "failed": 0, "healthy": True, "failed_pages": []}
+    passed      = sum(1 for r in results if r["ok"])
+    failed      = len(results) - passed
+    failed_pages = [r["name"] for r in results if not r["ok"]]
     return {
-        "total":   len(results),
-        "passed":  passed,
-        "failed":  failed,
-        "healthy": failed == 0
+        "total":        len(results),
+        "passed":       passed,
+        "failed":       failed,
+        "healthy":      failed == 0,
+        "failed_pages": failed_pages,
     }
 
 
 def format_report(results: list) -> str:
-    """
-    Format check results as a human-readable plain-text report.
-    Used for printing to the console or posting to a PR comment.
-    """
+    """Format check results as a human-readable report."""
     summary = get_summary(results)
     lines   = [
         f"Portfolio Health Report — {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
@@ -121,17 +149,22 @@ def format_report(results: list) -> str:
     for r in results:
         icon   = "✅" if r["ok"] else "❌"
         status = str(r["status"]) if r["status"] else "ERR"
-        lines.append(f"  {icon}  [{status}]  {r['name']}")
+        dur    = f" ({r['duration']}s)" if r["duration"] else ""
+        lines.append(f"  {icon}  [{status}]  {r['name']}{dur}")
         if r["error"]:
             lines.append(f"         ↳ {r['error']}")
+        if r.get("content_check") and not r.get("content_ok"):
+            lines.append(f"         ↳ Content check FAILED: '{r['content_check']}' not found")
 
     lines.append("")
-    lines.append("HEALTHY ✓" if summary["healthy"] else "UNHEALTHY — one or more pages failed")
+    if summary["healthy"]:
+        lines.append("HEALTHY ✓")
+    else:
+        lines.append(f"UNHEALTHY — failed pages: {', '.join(summary['failed_pages'])}")
     return "\n".join(lines)
 
 
 if __name__ == "__main__":
-    # Run health check manually: python app.py
     print("Checking portfolio pages...\n")
     results = check_all_pages()
     print(format_report(results))
