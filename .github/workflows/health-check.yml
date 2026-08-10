@@ -37,8 +37,11 @@ jobs:
           python app.py | tee health_report.txt
           if grep -q "UNHEALTHY" health_report.txt; then
             echo "status=unhealthy" >> $GITHUB_OUTPUT
+            echo "::error::One or more portfolio pages are DOWN!"
+            cat health_report.txt
           else
             echo "status=healthy" >> $GITHUB_OUTPUT
+            echo "::notice::All portfolio pages are healthy ✅"
           fi
 
       # Step 4: Print report to Actions log (always visible)

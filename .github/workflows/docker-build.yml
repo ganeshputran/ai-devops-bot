@@ -9,7 +9,8 @@ name: Build and push Docker image
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main"]    # only build on main — not feature branches
+    tags: ["v*"]          # also build on version tags (v1.2, v1.3 etc)
   workflow_dispatch:
 
 env:
